@@ -5,6 +5,7 @@ $ReservedSettings = @(
     #'DefaultProfile',
     'Module',
     'Publisher',
+    'Cache',
     'Profiles'
 )
 
@@ -46,6 +47,7 @@ Import configuration details from file system and generate a default template if
             $BasicConfig = [ordered]@{
                 'Module'         = $MyModuleName
                 'Publisher'      = $MyPublisher
+                'Cache'          = (New-GW2CacheSettings)
                 'DefaultProfile' = "Default"
                 'Profiles'       = @{
                     'Default' = BasicProfile -Name "Default"
@@ -91,18 +93,19 @@ Function Set-GW2ConfigValue {
 .SYNOPSIS
 Set a value for the configuration
 .DESCRIPTION
-Will store a value in a profile unless -SystemSetting is indicated. If no profile or system is specified, it store in the default profile.
+Will store a value in a profile unless -Section indicates otherwise. If no profile or system is specified, it store in the default profile.
 #>
-    [CmdletBinding(DefaultParameterSetName = "ProfileSetting")]
+    [CmdletBinding()]
     param(
         [parameter(ValueFromPipelineByPropertyName)]
         [string]$Name,
         [parameter(ValueFromPipeline, ValueFromPipelineByPropertyName)]
         $Value,
-        [parameter(ValueFromPipelineByPropertyName, ParameterSetName = "ProfileSetting")]
+        [parameter(ValueFromPipelineByPropertyName)]
         [string]$GW2Profile = (Get-GW2DefaultProfile),
-        [parameter(ParameterSetName = "SystemSetting", Mandatory)]
-        [switch]$SystemSetting
+        [parameter(ValueFromPipelineByPropertyName)]
+        [ValidateSet("Profile","System","Cache")]
+        [string]$Section="Profile"
     )
 
     Begin {
@@ -110,16 +113,22 @@ Will store a value in a profile unless -SystemSetting is indicated. If no profil
     }
 
     Process {
-        If ($SystemSetting) {
-            If ($Name -notin $ReservedSettings) {
-                $TempConfig.$Name = $Value
+        switch ($Section) {
+            "System" {
+                If ($Name -notin $ReservedSettings) {
+                    $TempConfig.$Name = $Value
+                }
             }
-        }
-        else {
-            If (-not ($TempConfig.Profiles.containsKey($GW2Profile))) {
-                $TempConfig.Profiles.$GW2Profile = BasicProfile -Name $GW2Profile
+            "Cache" {
+                If (-not ($TempConfig.Cache)) { $TempConfig.Cache = (New-GW2CacheSettings) }
+                $TempConfig.Cache.$Name = $Value
             }
-            $TempConfig.Profiles.$GW2Profile.$Name = $Value
+            default {
+                If (-not ($TempConfig.Profiles.containsKey($GW2Profile))) {
+                    $TempConfig.Profiles.$GW2Profile = BasicProfile -Name $GW2Profile
+                }
+                $TempConfig.Profiles.$GW2Profile.$Name = $Value
+            }
         }
     }
 
@@ -151,7 +160,7 @@ Function Set-GW2DefaultProfile {
         }
         If ($GW2Profile) {
             Write-Debug "Setting default profile to $GW2Profile" 
-            Set-GW2ConfigValue -SystemSetting -Name DefaultProfile -Value $GW2Profile
+            Set-GW2ConfigValue -Section System -Name DefaultProfile -Value $GW2Profile
         }
     }
 }    
@@ -298,12 +307,44 @@ Specifies that function calling this uses ID parameters
     return  $RuntimeParamDic
 
 }
-
-Function CommParams {
-    @(
+Function Get-GW2ConfigValue {
+    <#
+.SYNOPSIS
+Set a value for the configuration
+.DESCRIPTION
+Will store a value in a profile unless -Section indicates otherwise. If no profile or system is specified, it store in the default profile.
+#>
+    [CmdletBinding()]
+    param(
         [parameter(ValueFromPipelineByPropertyName)]
-        [string]$GW2Profile=(Get-GW2DefaultProfile)
+        [string]$Name,
+        [parameter(ValueFromPipelineByPropertyName)]
+        [string]$GW2Profile = (Get-GW2DefaultProfile),
+        [parameter(ValueFromPipelineByPropertyName)]
+        [ValidateSet("Profile","System","Cache")]
+        [string]$Section="Profile"
     )
+
+    Begin {
+        $TempConfig = $ModConfig #LoadConfig -PassThru
+    }
+
+    Process {
+        switch ($Section) {
+            "System" {
+                If ($Name -notin $ReservedSettings) {
+                    return $TempConfig.$Name
+                }
+            }
+            "Cache" {
+                return $TempConfig.Cache.$Name 
+            }
+            default {
+                return $TempConfig.Profiles.$GW2Profile.$Name
+            }
+        }
+    }
+
 }
 
 LoadConfig
