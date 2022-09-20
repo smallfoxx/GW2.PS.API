@@ -260,6 +260,12 @@ Specifies that function calling this uses ID parameters
             'ValidSet'                        = ([string[]]($ModConfig.Profiles.Keys))
             'DefaultValue'                    = (Get-GW2DefaultProfile)
         }
+        'UseCache' = @{
+            'AttribType'                      = [switch]
+            'Mandatory'                       = $false
+            'Position'                        = 2
+            'DefaultValue'                    = (Get-GW2DefaultUseCache)
+        }
     }
     If ($IDType -or $IDMandatory) {
         $Attrib.ID = @{
@@ -345,6 +351,14 @@ Will store a value in a profile unless -Section indicates otherwise. If no profi
         }
     }
 
+}
+
+Function Get-GW2DefaultUseCache {
+    If ((Get-Module -Name 'GW2.PS.Cache' -ListAvailable)) {
+        Write-Output ($true -eq (Get-GW2ConfigValue -Section Cache -Name 'UseCache'))
+    } else {
+        Write-Output $false
+    }
 }
 
 LoadConfig

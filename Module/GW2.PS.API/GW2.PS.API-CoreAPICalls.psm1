@@ -8,7 +8,7 @@ Split up parameter sets when a very long parameter is provided
         [parameter(ValueFromPipeline)]
         [string]$ParamName,
         $APIParams = @{},
-        [int]$MaxCount = 100,
+        [int]$MaxCount = 200,
         [int]$MaxLength = 10000
     )
 
@@ -82,6 +82,7 @@ Get a value from the Guild Wars 2 APIv2
         [string[]]$ID,
         $APIParams = @{},
         $APIBase = 'https://api.guildwars2.com/v2',
+        [switch]$UseCache = (Get-GW2DefaultUseCache),
         [parameter(ValueFromRemainingArguments)]
         $ExtraArgs
     )
@@ -99,13 +100,6 @@ Get a value from the Guild Wars 2 APIv2
         
         If ($ID) {
             $IDRegEx = "(.*;\s*)?id=(?<IDValue>[^;]*);?.*"
-            #If ($ID -match $IDRegEx) {
-                <# ODD BUG:  For some reason, even though this -match would come up $true,
-                   the $matches object was never populted so it was swtiched to use the
-                   [RegEx]::matches($String,$String) Method #>
-            #       Write-Debug "Also Fixing value in $ID to $($matches) [$URI]"
-            #       $ID = $matches.IDValue
-            #}
             $Res=[RegEx]::Matches($ID,$IDRegEx)
             If ($Res.Groups) {
                 Write-Debug "Fixing value in $ID to $(($Res.Groups | Where-Object { $_.Name -eq 'IDValue' }).Value -join ',') [$URI]"
@@ -123,19 +117,25 @@ Get a value from the Guild Wars 2 APIv2
             $SplitParams = Split-GW2OversizedParam -ParamName $ParamName -APIParams $APIParams
             If ($SplitParams.back) {
                 $IsOversized = $true
-                Get-GW2APIValue -APIBase $APIBase -SecureAPIKey $SecureAPIKey -APIValue $APIValue -APIParams $SplitParams.front
-                Get-GW2APIValue -APIBase $APIBase -SecureAPIKey $SecureAPIKey -APIValue $APIValue -APIParams $SplitParams.back
+                Get-GW2APIValue -APIBase $APIBase -SecureAPIKey $SecureAPIKey -APIValue $APIValue -UseCache $UseCache -APIParams $SplitParams.front
+                Get-GW2APIValue -APIBase $APIBase -SecureAPIKey $SecureAPIKey -APIValue $APIValue -UseCache $UseCache -APIParams $SplitParams.back
             }
         }
         If (-not $IsOversized) {
-            Write-Debug "calling REST GET: $URI ($(($APIParams.Values | ForEach-Object { $_ }) -join ';')) - ($($PSCmdlet.ParameterSetName)) [$(Get-GW2APIKey)]"
             If ($APIParams.count -gt 0) {
-                InvokeGetAPI -Uri $URI -Token $SecureAPIKey -APIParams $APIParams
+                If ($UseCache) {
+                    Write-Debug "attempting to use CACHE to get $APIValue ($(($APIParams.Values | ForEach-Object { $_ }) -join ';'))"
+                    Get-GW2CacheValue -APIValue $APIValue -SecureAPIKey $SecureAPIKey -APIParams $APIParams
+                } else {
+                    Write-Debug "calling REST GET: $URI ($(($APIParams.Values | ForEach-Object { $_ }) -join ';')) - ($($PSCmdlet.ParameterSetName)) [$(Get-GW2APIKey)]"
+                    InvokeGetAPI -Uri $URI -Token $SecureAPIKey -APIParams $APIParams
+                }
             }
             else {
+                Write-Debug "calling REST GET: $URI - ($($PSCmdlet.ParameterSetName)) [$(Get-GW2APIKey)]"
                 InvokeGetAPI -Uri $URI -Token $SecureAPIKey
             }
-        }#>
+        }
     }
 }
 
@@ -154,5 +154,44 @@ Obtain the In Game Name (IGN) for the account
             If ($_ -match "(?<base>/v2/\S+) \[[^\[\]]\]") { $matches.base.tostring() }
         }
     }
+}
+
+Function Group-GW2ObjectByCount {
+    [cmdletbinding()]
+    param(
+        [Parameter(ValueFromPipeline)]
+        [object[]]$InputObject,
+        [int]$GroupSize=200,
+        [switch]$Unique,
+        [switch]$SkipJoin
+    )
+
+    Begin {
+        $FullCollection = [System.Collections.ArrayList]::new()
+    }
+
+    Process {
+        $FullCollection.AddRange(@($InputObject))
+    }
+
+    End {
+        $x=0
+        Write-Debug "Finding unique values out of $($FullCollection.count)..."
+        $UniqueList = [System.Collections.ArrayList]($FullCollection | Select-Object -Unique:$Unique)
+        Write-Debug "Putting $($UniqueList.count) into groups of $GroupSize..."
+        While ($x -lt $UniqueList.Count) {
+            $left = $UniqueList.Count - $x
+            If ($Left -gt $GroupSize) { $left = $GroupSize }
+            $subset = $UniqueList.GetRange($x, $left)
+            Write-Debug "Output putting group starting at $x..."
+            If ($SkipJoin) {
+                $subset
+            } else {
+                $subset -join ','
+            }
+            $x+=$GroupSize
+        }
+    }
+
 }
 
