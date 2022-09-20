@@ -1,9 +1,6 @@
 # Welcome to the PowerShell Module for Guild Wars 2 API: GW2.PS.API
 
-Recently ArenaNET celebrated the 10th Anniversary of Guild Wars 2 (2012-2022).  For years, Guild Wars 2 has had an [API](https://wiki.guildwars2.com/wiki/API:Main)
-for accessing your in game details as well as allowing third party applications to share in this information.  However, absent from the list of
-[wrappers](https://wiki.guildwars2.com/wiki/API:List_of_wrappers) and [applications](https://wiki.guildwars2.com/wiki/API:List_of_applications) is a PowerShell based
-module.
+Recently ArenaNET celebrated the 10th Anniversary of Guild Wars 2 (2012-2022).  For years, Guild Wars 2 has had an [API](https://wiki.guildwars2.com/wiki/API:Main) for accessing your in game details as well as allowing third party applications to share in this information.  However, absent from the list of [wrappers](https://wiki.guildwars2.com/wiki/API:List_of_wrappers) and [applications](https://wiki.guildwars2.com/wiki/API:List_of_applications) is a PowerShell based module.
 
 Enter **GW2.PS** (queue dramatic theme music with sweeping visualization [pending budgettary needs])
 
