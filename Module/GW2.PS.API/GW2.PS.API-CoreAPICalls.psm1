@@ -79,10 +79,12 @@ Get a value from the Guild Wars 2 APIv2
         [parameter(ParameterSetName = "ProfileName", Position = 0)]
         [string]$GW2Profile = (Get-GW2DefaultProfile),
         $APIValue = '',
+        [parameter(ValueFromPipelineByPropertyName)]
         [string[]]$ID,
-        $APIParams = @{},
+        [hashtable]$APIParams = @{},
         $APIBase = 'https://api.guildwars2.com/v2',
         [switch]$UseCache = (Get-GW2DefaultUseCache),
+        [switch]$UseDB = (Get-GW2DefaultUseDB),
         [parameter(ValueFromRemainingArguments)]
         $ExtraArgs
     )
@@ -117,13 +119,16 @@ Get a value from the Guild Wars 2 APIv2
             $SplitParams = Split-GW2OversizedParam -ParamName $ParamName -APIParams $APIParams
             If ($SplitParams.back) {
                 $IsOversized = $true
-                Get-GW2APIValue -APIBase $APIBase -SecureAPIKey $SecureAPIKey -APIValue $APIValue -UseCache $UseCache -APIParams $SplitParams.front
-                Get-GW2APIValue -APIBase $APIBase -SecureAPIKey $SecureAPIKey -APIValue $APIValue -UseCache $UseCache -APIParams $SplitParams.back
+                Get-GW2APIValue -APIBase $APIBase -SecureAPIKey $SecureAPIKey -APIValue $APIValue -UseCache:$UseCache -UseDB:$UseDB -APIParams $SplitParams.front
+                Get-GW2APIValue -APIBase $APIBase -SecureAPIKey $SecureAPIKey -APIValue $APIValue -UseCache:$UseCache -UseDB:$UseDB -APIParams $SplitParams.back
             }
         }
         If (-not $IsOversized) {
             If ($APIParams.count -gt 0) {
-                If ($UseCache) {
+                if ($UseDB) {
+                    Write-Debug "attempting to use LiteDB to get $APIValue ($(($APIParams.Values | ForEach-Object { $_ }) -join ';'))"
+                    Get-GW2DBValue -APIValue $APIValue -SecureAPIKey $SecureAPIKey -APIParams $APIParams
+                } elseIf ($UseCache) {
                     Write-Debug "attempting to use CACHE to get $APIValue ($(($APIParams.Values | ForEach-Object { $_ }) -join ';'))"
                     Get-GW2CacheValue -APIValue $APIValue -SecureAPIKey $SecureAPIKey -APIParams $APIParams
                 } else {
