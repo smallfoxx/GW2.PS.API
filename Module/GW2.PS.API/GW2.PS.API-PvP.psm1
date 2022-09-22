@@ -1,28 +1,16 @@
-Function Get-GW2AccountFinisher {
+Function Get-GW2Finisher {
     <#
     .SYNOPSIS
     Get the account/finisher from Guild Wars 2 API
     #>
     [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
-    Process {
-        Get-GW2APIValue -APIValue "account/finishers" -GW2Profile $GW2Profile 
+    param()
+    DynamicParam {
+        CommonGW2APIParameters -IDType 'Finisher'
     }
-}
-
-Function Get-GW2AccountPvpHero {
-    <#
-.SYNOPSIS
-Get the account/pvp/heroes from Guild Wars 2 API
-#>
-    [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
     Process {
-        Get-GW2APIValue -APIValue "account/pvp/heroes" -GW2Profile $GW2Profile 
+        $APIEndpoint = "finishers"
+        Get-GW2APIValue -APIValue $APIEndpoint @PSBoundParameters
     }
 }
 

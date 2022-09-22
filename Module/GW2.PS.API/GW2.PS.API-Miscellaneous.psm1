@@ -14,22 +14,6 @@ Function Get-GW2Currency {
     }
 }
 
-Function Get-GW2Dungeon {
-    <#
-    .SYNOPSIS
-    Get the dungeons/ from Guild Wars 2 API
-    #>
-    [cmdletbinding()]
-    param()
-    DynamicParam {
-        CommonGW2APIParameters -IDType "Dungeon"
-    }
-    Process {
-        $APIEndpoint = "dungeons"
-        Get-GW2APIValue -APIValue $APIEndpoint @PSBoundParameters
-    }
-}
-    
 Function Get-GW2EventState {
     <#
     .SYNOPSIS

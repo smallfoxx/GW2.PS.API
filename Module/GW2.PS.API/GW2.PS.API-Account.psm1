@@ -4,11 +4,12 @@ Function Get-GW2Account {
 Obtain the In Game Name (IGN) for the account
 #>
     [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
+    param()
+    DynamicParam {
+        CommonGW2APIParameters
+    }
     Process {
-        Get-GW2APIValue -APIValue "account" -GW2Profile $GW2Profile
+        Get-GW2APIValue -APIValue "account" @PSBoundParameters
     }
 }
 
@@ -18,9 +19,10 @@ Function Get-GW2IGN {
 Obtain the In Game Name (IGN) for the account
 #>
     [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
+    param()
+    DynamicParam {
+        CommonGW2APIParameters
+    }
 
     Process {
         (Get-GW2Account -GW2Profile $GW2Profile).name
@@ -33,9 +35,10 @@ Function Copy-GW2IGNToClipboard {
 Obtain the In Game Name (IGN) for the account
 #>
     [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
+    param()
+    DynamicParam {
+        CommonGW2APIParameters
+    }
 
     Process {
         Get-GW2IGN -GW2Profile $GW2Profile | Set-Clipboard
@@ -48,11 +51,12 @@ Function Get-GW2Bank {
 Get the account/bank from Guild Wars 2 API
 #>
     [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
+    param()
+    DynamicParam {
+        CommonGW2APIParameters
+    }
     Process {
-        Get-GW2APIValue -APIValue "account/bank" -GW2Profile $GW2Profile 
+        Get-GW2APIValue -APIValue "account/bank"  @PSBoundParameters 
     }
 }
 
@@ -62,42 +66,15 @@ Function Get-GW2Luck {
     Get the account/luck from Guild Wars 2 API
     #>
     [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
+    param()
+    DynamicParam {
+        CommonGW2APIParameters
+    }
     Process {
-        Get-GW2APIValue -APIValue "account/luck" -GW2Profile $GW2Profile 
+        Get-GW2APIValue -APIValue "account/luck"  @PSBoundParameters 
     }
 }
   
-Function Get-GW2AccountMailCarrier {
-    <#
-    .SYNOPSIS
-    Get the account/mailcarriers from Guild Wars 2 API
-    #>
-    [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
-    Process {
-        Get-GW2APIValue -APIValue "account/mailcarriers" -GW2Profile $GW2Profile 
-    }
-}
-
-Function Get-GW2AccountMastery {
-    <#
-    .SYNOPSIS
-    Get the account/masteries from Guild Wars 2 API
-    #>
-    [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
-    Process {
-        Get-GW2APIValue -APIValue "account/masteries" -GW2Profile $GW2Profile 
-    }
-}
-
 Function Get-GW2MasteryPoint {
     <#
     .SYNOPSIS
@@ -123,20 +100,6 @@ Get the account/progression from Guild Wars 2 API
     )
     Process {
         Get-GW2APIValue -APIValue "account/progression" -GW2Profile $GW2Profile 
-    }
-}
-
-Function Get-GW2Raid {
-    <#
-.SYNOPSIS
-Get the account/raids from Guild Wars 2 API
-#>
-    [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
-    Process {
-        Get-GW2APIValue -APIValue "account/raids" -GW2Profile $GW2Profile 
     }
 }
 
@@ -182,20 +145,6 @@ Function New-GW2Subtoken {
     }
 }
         
-Function Get-GW2Glider {
-    <#
-    .SYNOPSIS
-    Get the gliders from Guild Wars 2 API
-    #>
-    [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
-    Process {
-        Get-GW2APIValue -APIValue "gliders" -GW2Profile $GW2Profile 
-    }
-}
-
 Function Get-GW2MailCarrier {
     <#
         .SYNOPSIS
@@ -626,7 +575,7 @@ Function Get-GW2AccountPvpHero {
     [cmdletbinding()]
     param()
     DynamicParam {
-        CommonGW2APIParameters -IDType "Heroe"
+        CommonGW2APIParameters
     }
     Process {
         $APIEndpoint = "account/pvp/heroes"
@@ -674,7 +623,7 @@ Function Get-GW2AccountSkin {
     [cmdletbinding()]
     param()
     DynamicParam {
-        CommonGW2APIParameters
+        CommonGW2APIParameters -IDType 'Skin'
     }
     Process {
         $APIEndpoint = "account/skins"
