@@ -43,14 +43,15 @@ Function Get-GW2Emote {
 Function Get-GW2Glider {
     <#
     .SYNOPSIS
-    Get the account/glider from Guild Wars 2 API
+    Get the gliders from Guild Wars 2 API
     #>
     [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
+    param()
+    DynamicParam {
+        CommonGW2APIParameters -IDType 'Glider'     
+    }
     Process {
-        Get-GW2APIValue -APIValue "account/gliders" -GW2Profile $GW2Profile 
+        Get-GW2APIValue -APIValue "gliders" @PSBoundParameters
     }
 }
 
@@ -65,34 +66,6 @@ Function Get-GW2Inventory {
     )
     Process {
         Get-GW2APIValue -APIValue "account/inventory" -GW2Profile $GW2Profile 
-    }
-}
-
-Function Get-GW2Title {
-    <#
-.SYNOPSIS
-Get the account/titles from Guild Wars 2 API
-#>
-    [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
-    Process {
-        Get-GW2APIValue -APIValue "account/titles" -GW2Profile $GW2Profile 
-    }
-}
-
-Function Get-GW2Worldboss {
-    <#
-    .SYNOPSIS
-    Get the account/worldbosses from Guild Wars 2 API
-    #>
-    [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
-    Process {
-        Get-GW2APIValue -APIValue "account/worldbosses" -GW2Profile $GW2Profile 
     }
 }
 

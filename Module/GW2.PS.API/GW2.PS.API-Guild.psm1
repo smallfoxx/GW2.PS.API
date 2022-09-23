@@ -140,14 +140,16 @@ Function Get-GW2GuildUpgrade {
     Get the guild/:id/upgrades from Guild Wars 2 API
     #>
     [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile),
-        [parameter(ValueFromPipelineByPropertyName, ValueFromPipeline, Mandatory)]
-        [Alias("GuildID")]
-        [string]$ID
-    )
+    param()
+    DynamicParam {
+        CommonGW2APIParameters -IDType "Guild"
+    }
     Process {
-        Get-GW2APIValue -APIValue "guild/$ID/upgrades" -GW2Profile $GW2Profile 
+        If ($ID) {
+            Get-GW2APIValue -APIValue "guild/$ID/upgrades" -GW2Profile $GW2Profile @PSBoundParameters
+        } else {
+            Get-GW2APIValue -APIValue "guild/upgrades" -GW2Profile $GW2Profile @PSBoundParameters
+        }
     }
 }
 
@@ -165,20 +167,6 @@ Function Get-GW2GuildPermission {
     }
 }
 
-Function Get-GW2GuildUpgrade {
-    <#
-    .SYNOPSIS
-    Get the guild/upgrades from Guild Wars 2 API
-    #>
-    [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
-    Process {
-        Get-GW2APIValue -APIValue "guild/upgrades" -GW2Profile $GW2Profile 
-    }
-}
-    
 Function Get-GW2GuildEmblem {
     <#
     .SYNOPSIS

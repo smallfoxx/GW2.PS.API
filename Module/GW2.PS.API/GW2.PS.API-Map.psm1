@@ -4,28 +4,16 @@ Function Get-GW2Dungeon {
     Get the account/dungeons from Guild Wars 2 API
     #>
     [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
+    param()
+    DynamicParam {
+        CommonGW2APIParameters -IDType "Dungeon"
+    }
     Process {
-        Get-GW2APIValue -APIValue "account/dungeons" -GW2Profile $GW2Profile 
+        $APIEndpoint = "dungeons"
+        Get-GW2APIValue -APIValue $APIEndpoint @PSBoundParameters
     }
 }
     
-Function Get-GW2AccountMapchest {
-    <#
-    .SYNOPSIS
-    Get the account/mapchests from Guild Wars 2 API
-    #>
-    [cmdletbinding()]
-    param(
-        [string]$GW2Profile = (Get-GW2DefaultProfile)
-    )
-    Process {
-        Get-GW2APIValue -APIValue "account/mapchests" -GW2Profile $GW2Profile 
-    }
-}
-
 Function Get-GW2Adventure {
     <#
     .SYNOPSIS
