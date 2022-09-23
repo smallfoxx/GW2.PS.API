@@ -6,6 +6,7 @@ $ReservedSettings = @(
     'Module',
     'Publisher',
     'Cache',
+    'LiteDB',
     'Profiles'
 )
 
@@ -48,6 +49,7 @@ Import configuration details from file system and generate a default template if
                 'Module'         = $MyModuleName
                 'Publisher'      = $MyPublisher
                 'Cache'          = (New-GW2CacheSettings)
+                'LiteDB'         = (New-GW2LiteDBSettings)
                 'DefaultProfile' = "Default"
                 'Profiles'       = @{
                     'Default' = BasicProfile -Name "Default"
@@ -104,7 +106,7 @@ Will store a value in a profile unless -Section indicates otherwise. If no profi
         [parameter(ValueFromPipelineByPropertyName)]
         [string]$GW2Profile = (Get-GW2DefaultProfile),
         [parameter(ValueFromPipelineByPropertyName)]
-        [ValidateSet("Profile","System","Cache")]
+        [ValidateSet("Profile","System","Cache","LiteDB")]
         [string]$Section="Profile"
     )
 
@@ -122,6 +124,10 @@ Will store a value in a profile unless -Section indicates otherwise. If no profi
             "Cache" {
                 If (-not ($TempConfig.Cache)) { $TempConfig.Cache = (New-GW2CacheSettings) }
                 $TempConfig.Cache.$Name = $Value
+            }
+            "LiteDB" {
+                If (-not ($TempConfig.LiteDB)) { $TempConfig.LiteDB = (New-GW2LiteDBSettings) }
+                $TempConfig.LiteDB.$Name = $Value
             }
             default {
                 If (-not ($TempConfig.Profiles.containsKey($GW2Profile))) {
@@ -281,6 +287,12 @@ Specifies that function calling this uses ID parameters
             'Position'                        = 4
             'DefaultValue'                    = ((-not $Online ) -and (Get-GW2DefaultUseDB))
         }
+        'UseDB' = @{
+            'AttribType'                      = [switch]
+            'Mandatory'                       = $false
+            'Position'                        = 3
+            'DefaultValue'                    = (Get-GW2DefaultUseDB)
+        }
     }
     If ($IDType -or $IDMandatory) {
         $Attrib.ID = @{
@@ -342,7 +354,7 @@ Will store a value in a profile unless -Section indicates otherwise. If no profi
         [parameter(ValueFromPipelineByPropertyName)]
         [string]$GW2Profile = (Get-GW2DefaultProfile),
         [parameter(ValueFromPipelineByPropertyName)]
-        [ValidateSet("Profile","System","Cache")]
+        [ValidateSet("Profile","System","Cache","LiteDB")]
         [string]$Section="Profile"
     )
 
@@ -360,6 +372,9 @@ Will store a value in a profile unless -Section indicates otherwise. If no profi
             "Cache" {
                 return $TempConfig.Cache.$Name 
             }
+            "LiteDB" {
+                return $TempConfig.LiteDB.$Name 
+            }
             default {
                 return $TempConfig.Profiles.$GW2Profile.$Name
             }
@@ -371,6 +386,14 @@ Will store a value in a profile unless -Section indicates otherwise. If no profi
 Function Get-GW2DefaultUseCache {
     If ((Get-Module -Name 'GW2.PS.Cache' -ListAvailable)) {
         Write-Output ($true -eq (Get-GW2ConfigValue -Section Cache -Name 'UseCache'))
+    } else {
+        Write-Output $false
+    }
+}
+
+Function Get-GW2DefaultUseDB {
+    If ((Get-Module -Name 'GW2.PS.LiteDB') -or (Get-Module -Name 'GW2.PS.LiteDB' -ListAvailable)) {
+        Write-Output ($true -eq (Get-GW2ConfigValue -Section LiteDB -Name 'UseDB'))
     } else {
         Write-Output $false
     }
