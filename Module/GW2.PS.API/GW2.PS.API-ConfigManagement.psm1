@@ -277,8 +277,8 @@ Specifies that function calling this uses ID parameters
             'AttribType'                      = [switch]
             'Mandatory'                       = $false
             'ParameterSetName'                = 'LocalStorage'
-            'Position'                        = 2
-            'DefaultValue'                    = ((-not $Online) -and (Get-GW2DefaultUseCache))
+            'Position'                        = 3
+            'DefaultValue'                    = ((-not $Online ) -and (Get-GW2DefaultUseCache))
         }
         'UseDB' = @{
             'AttribType'                      = [switch]
