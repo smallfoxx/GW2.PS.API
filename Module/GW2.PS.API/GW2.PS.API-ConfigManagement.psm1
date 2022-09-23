@@ -266,17 +266,26 @@ Specifies that function calling this uses ID parameters
             'ValidSet'                        = ([string[]]($ModConfig.Profiles.Keys))
             'DefaultValue'                    = (Get-GW2DefaultProfile)
         }
+        'Online' = @{
+            'AttribType'                      = [switch]
+            'Mandatory'                       = $false
+            'ParameterSetName'                = 'OnlineOnly'
+            'Position'                        = 2
+            'DefaultValue'                    = (-not ((Get-GW2DefaultUseCache) -or (Get-GW2DefaultUseDB))) 
+        }
         'UseCache' = @{
             'AttribType'                      = [switch]
             'Mandatory'                       = $false
+            'ParameterSetName'                = 'LocalStorage'
             'Position'                        = 2
-            'DefaultValue'                    = (Get-GW2DefaultUseCache)
+            'DefaultValue'                    = ((-not $Online) -and (Get-GW2DefaultUseCache))
         }
         'UseDB' = @{
             'AttribType'                      = [switch]
             'Mandatory'                       = $false
+            'ParameterSetName'                = 'LocalStorage'
             'Position'                        = 3
-            'DefaultValue'                    = (Get-GW2DefaultUseDB)
+            'DefaultValue'                    = ((-not $Online) -and (Get-GW2DefaultUseDB))
         }
     }
     If ($IDType -or $IDMandatory) {
