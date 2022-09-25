@@ -269,21 +269,18 @@ Specifies that function calling this uses ID parameters
         'Online' = @{
             'AttribType'                      = [switch]
             'Mandatory'                       = $false
-            'ParameterSetName'                = 'OnlineOnly'
             'Position'                        = 2
             'DefaultValue'                    = (-not ((Get-GW2DefaultUseCache) -or (Get-GW2DefaultUseDB))) 
         }
         'UseCache' = @{
             'AttribType'                      = [switch]
             'Mandatory'                       = $false
-            'ParameterSetName'                = 'LocalStorage'
             'Position'                        = 3
             'DefaultValue'                    = ((-not $Online ) -and (Get-GW2DefaultUseCache))
         }
         'UseDB' = @{
             'AttribType'                      = [switch]
             'Mandatory'                       = $false
-            'ParameterSetName'                = 'LocalStorage'
             'Position'                        = 3
             'DefaultValue'                    = ((-not $Online) -and (Get-GW2DefaultUseDB))
         }

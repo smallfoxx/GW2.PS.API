@@ -53,11 +53,11 @@ Function InvokeGetAPI {
     Process {
         Write-Debug "Calling $URI with $Token {$($APIParams.keys | ForEach-Object { ""$_=$($APIParams.$_ -join ',')"" })}"
         If ($PSVersionTable.PSVersion -ge "7.0") {
-            (Invoke-RestMethod -Method Get -Uri $URI -Authentication Bearer -Token $Token -Body $APIParams)
+            (Invoke-RestMethod -Method Get -Uri $URI -Authentication Bearer -Token $Token -Body $APIParams -ErrorAction Stop)
         }
         elseif ($PSVersionTable.PSVersion -ge "5.1") {
             $APIKey = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureAPIKey))
-            (Invoke-RestMethod -Method Get -Uri $URI -Header @{ "Authorization" = "Bearer $APIKey" } -Body $APIParams)
+            (Invoke-RestMethod -Method Get -Uri $URI -Header @{ "Authorization" = "Bearer $APIKey" } -Body $APIParams -ErrorAction Stop )
         }
         else {
             throw ("Current PS Version [$($PSVersionTable.PSVersion)] not supported!  Install the latest version of PowerShell for support")

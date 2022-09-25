@@ -347,9 +347,9 @@ Function Get-GW2APIEndpoint {
     )
     DynamicParam {
         CommonGW2APIParameters -IDType Value
-        $APILineRegEx = "/v2/(?<name>{0})(\s+\[(?<flags>[^\]]+)\])?"
     }
     Begin {
+        $APILineRegEx = "/v2/(?<name>{0})(\s+\[(?<flags>[^\]]+)\])?"
         $v2Response = Get-GW2APIValue -Value ''
         $v2RespLineless = ($v2Response -replace "\r","%%r%%") -replace "\n","%%n%%"
         If ($v2RespLineless -match 'exposed by this API:(?<endpoints>.+)Key:') {
