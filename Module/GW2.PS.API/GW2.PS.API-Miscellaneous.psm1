@@ -326,7 +326,7 @@ Function Get-GW2APIEndpointCacheable {
     }
     Process {
         If ($Details) {
-            $CacheableEndPoint | %{
+            $CacheableEndPoint | ForEach-Object {
                 Get-GW2APIEndpoint -EPName $_ @PSBoundParameters 
             }
         } else {
