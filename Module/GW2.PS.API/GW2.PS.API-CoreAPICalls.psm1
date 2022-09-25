@@ -53,11 +53,11 @@ Function InvokeGetAPI {
     Process {
         Write-Debug "Calling $URI with $Token {$($APIParams.keys | ForEach-Object { ""$_=$($APIParams.$_ -join ',')"" })}"
         If ($PSVersionTable.PSVersion -ge "7.0") {
-            (Invoke-RestMethod -Method Get -Uri $URI -Authentication Bearer -Token $Token -Body $APIParams)
+            (Invoke-RestMethod -Method Get -Uri $URI -Authentication Bearer -Token $Token -Body $APIParams -ErrorAction Stop)
         }
         elseif ($PSVersionTable.PSVersion -ge "5.1") {
             $APIKey = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureAPIKey))
-            (Invoke-RestMethod -Method Get -Uri $URI -Header @{ "Authorization" = "Bearer $APIKey" } -Body $APIParams)
+            (Invoke-RestMethod -Method Get -Uri $URI -Header @{ "Authorization" = "Bearer $APIKey" } -Body $APIParams -ErrorAction Stop )
         }
         else {
             throw ("Current PS Version [$($PSVersionTable.PSVersion)] not supported!  Install the latest version of PowerShell for support")
@@ -85,6 +85,7 @@ Get a value from the Guild Wars 2 APIv2
         $APIBase = 'https://api.guildwars2.com/v2',
         [switch]$UseCache = (Get-GW2DefaultUseCache),
         [switch]$UseDB = (Get-GW2DefaultUseDB),
+        [switch]$UpdateDB,
         [parameter(ValueFromRemainingArguments)]
         $ExtraArgs
     )
@@ -133,7 +134,12 @@ Get a value from the Guild Wars 2 APIv2
                     Get-GW2CacheValue -APIValue $APIValue -SecureAPIKey $SecureAPIKey -APIParams $APIParams
                 } else {
                     Write-Debug "calling REST GET: $URI ($(($APIParams.Values | ForEach-Object { $_ }) -join ';')) - ($($PSCmdlet.ParameterSetName)) [$(Get-GW2APIKey)]"
-                    InvokeGetAPI -Uri $URI -Token $SecureAPIKey -APIParams $APIParams
+                    $result = InvokeGetAPI -Uri $URI -Token $SecureAPIKey -APIParams $APIParams
+                    If ($UpdateDB) {
+                        $result | Add-GW2DBEntry -CollectionName $APIValue -PassThru
+                    } else {
+                        $result
+                    }
                 }
             }
             else {

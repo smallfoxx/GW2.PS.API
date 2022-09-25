@@ -268,30 +268,21 @@ Specifies that function calling this uses ID parameters
         }
         'Online' = @{
             'AttribType'                      = [switch]
-            'ParameterSetName'                = 'OnlineLookup'
-            'Mandatory'                       = $true
+            'Mandatory'                       = $false
             'Position'                        = 2
-            'DefaultValue'                    = (-not ((Get-GW2DefaultUseCache) -or (Get-GW2DefaultUseDB)))
+            'DefaultValue'                    = (-not ((Get-GW2DefaultUseCache) -or (Get-GW2DefaultUseDB))) 
         }
         'UseCache' = @{
             'AttribType'                      = [switch]
-            'ParameterSetName'                = 'UseLocalInfo'
             'Mandatory'                       = $false
             'Position'                        = 3
             'DefaultValue'                    = ((-not $Online ) -and (Get-GW2DefaultUseCache))
         }
         'UseDB' = @{
             'AttribType'                      = [switch]
-            'ParameterSetName'                = 'UseLocalInfo'
-            'Mandatory'                       = $false
-            'Position'                        = 4
-            'DefaultValue'                    = ((-not $Online ) -and (Get-GW2DefaultUseDB))
-        }
-        'UseDB' = @{
-            'AttribType'                      = [switch]
             'Mandatory'                       = $false
             'Position'                        = 3
-            'DefaultValue'                    = (Get-GW2DefaultUseDB)
+            'DefaultValue'                    = ((-not $Online) -and (Get-GW2DefaultUseDB))
         }
     }
     If ($IDType -or $IDMandatory) {

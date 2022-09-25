@@ -128,7 +128,23 @@ Function Get-GW2CommerceListing {
     }
     Process {
         $APIEndpoint = "commerce/listings"
-        Get-GW2APIValue -APIValue $APIEndpoint @PSBoundParameters
+        try {
+            Get-GW2APIValue -APIValue $APIEndpoint @PSBoundParameters -ErrorAction Stop
+        } catch {
+            $e=$_
+            if ($PSVersionTable.PSVersion -lt "5.1") {
+                throw ($error[0])
+            } else {
+                If ($e -match 'all ids provided are invalid') {
+                    If (-not $ID) {
+                        $ID = $PSBoundParameters.ID
+                    }
+                    Write-Debug "Could not find IDs at $APIEndpoint [IDs: $($ID -join ',')]"
+                } else {
+                    throw ($e)
+                }
+            }
+        }
     }
 }
 
