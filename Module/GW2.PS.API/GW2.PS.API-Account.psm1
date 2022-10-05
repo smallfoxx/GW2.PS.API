@@ -25,7 +25,7 @@ Obtain the In Game Name (IGN) for the account
     }
 
     Process {
-        (Get-GW2Account -GW2Profile $GW2Profile).name
+        (Get-GW2Account @PSBoundParameters).name
     }
 }
 
@@ -41,7 +41,7 @@ Obtain the In Game Name (IGN) for the account
     }
 
     Process {
-        Get-GW2IGN -GW2Profile $GW2Profile | Set-Clipboard
+        Get-GW2IGN @PSBoundParameters | Set-Clipboard
     }
 }
 
