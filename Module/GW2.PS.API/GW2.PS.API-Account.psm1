@@ -132,13 +132,13 @@ Function New-GW2Subtoken {
     )
     Process {
         $APIParams = @{ 
-            "expire" = Get-Date -Date (Get-Date).AddDays($Duration) -Format "o" -AsUTC
+            "expire" = "{0:o}" -f (Get-Date).AddDays($Duration).ToUniversalTime() 
         }
 
         If (-not [string]::IsNullOrEmpty($Permissions)) { $APIParams.permissions = $Permissions -join ',' }
         If (-not [string]::IsNullOrEmpty($URLs)) { $APIParams.urls = $URLs -join ',' }
 
-        $result = Get-GW2APIValue -APIValue "createsubtoken" -GW2Profile $GW2Profile -APIParams $APIParams
+        $result = Get-GW2APIValue -APIValue "createsubtoken" -GW2Profile $GW2Profile -APIParams $APIParams -UseDB:$false -UseCache:$false
         If ($result) {
             return $result.subtoken
         }

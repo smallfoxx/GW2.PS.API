@@ -15,7 +15,14 @@ Function ConfigPath {
 .SYNOPSIS
 Return the path to the configuration file; might depend on platform.
 #>
-    "$env:AppData\$MyPublisher\$MyModuleName.xml"
+    If ($IsWindows) {
+        "$env:AppData\$MyPublisher\$MyModuleName.xml"
+    } elseif ($IsMacOS) {
+        "~/Library/Application Support/$MyPublisher/$MyModuleName.xml"
+    } else {
+        "$PSScriptRoot/Data/$MyModuleName.xml"
+    }
+    
 }
 
 Function BasicProfile {
@@ -50,6 +57,7 @@ Import configuration details from file system and generate a default template if
                 'Publisher'      = $MyPublisher
                 'Cache'          = (New-GW2CacheSettings)
                 'LiteDB'         = (New-GW2LiteDBSettings)
+                #'Table'          = (New-GW2TableAPISettings) #Not yet published
                 'DefaultProfile' = "Default"
                 'Profiles'       = @{
                     'Default' = BasicProfile -Name "Default"
