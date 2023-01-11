@@ -151,11 +151,14 @@ Function Get-GW2CharacterBuildtab {
     }
     Process {
         If ($All) {
-            Get-GW2APIValue -APIValue "characters/:id/buildtabs" -APIParams @{ "tabs" = "all" } @PSBoundParameters | Add-Member NoteProperty CharacterID ($PSBoundParameters.ID)  -PassThru
+            $null = $PSBoundParameters.Remove("All")
+            ForEach ($CharacterTab in (Get-Gw2CharacterBuildtab @PSBoundParameters)) {
+                Get-GW2CharacterBuildTab @PSBoundParameters -TabId $CharacterTab.TabID
+            }
         }
         elseif ($TabId) {
             ForEach ($tab in $TabId) {
-                Get-GW2APIValue -APIValue "characters/:id/buildtabs" -APIParams @{ "tabs" = "$tab" } @PSBoundParameters  | Add-Member NoteProperty CharacterID ($PSBoundParameters.ID)  -PassThru
+                Get-GW2APIValue -APIValue "characters/:id/buildtabs/$tab" @PSBoundParameters  | Add-Member NoteProperty CharacterID ($PSBoundParameters.ID)  -PassThru
             }
         }
         else {
@@ -376,9 +379,9 @@ Function Get-GW2CharacterSpecialization {
 
 Function Get-GW2CharacterTraining {
     <#
-                                .SYNOPSIS
-                                Get the characters/(id)/training from Guild Wars 2 API
-                                #>
+        .SYNOPSIS
+        Get the characters/(id)/training from Guild Wars 2 API
+    #>
     [cmdletbinding()]
     param(
     )
@@ -389,5 +392,21 @@ Function Get-GW2CharacterTraining {
         Get-GW2APIValue -APIValue "characters/:id/training" @PSBoundParameters 
     }
 }
-                                
+
+Function ConvertTo-GW2BuildTemplate {
+    <#
+        .SYNOPSIS
+        Convert a Character Build to the standard GW2 Template String
+    #>
+    param(
+        [parameter(ValueFromPipeline,ValueFromPipelineByPropertyName)]
+        $Build
+    )
+    DynamicParam {
+        CommonGW2APIParameters -IDType 'Character' -IDMandatory 
+    }
+    Process {
+        
+    }
+}
          
