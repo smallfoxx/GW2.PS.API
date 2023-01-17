@@ -15,7 +15,7 @@ Function ConfigPath {
 .SYNOPSIS
 Return the path to the configuration file; might depend on platform.
 #>
-    If ($IsWindows) {
+    If ($PSVersionTable.OS -match 'Windows') {
         "$env:AppData\$MyPublisher\$MyModuleName.xml"
     } elseif ($IsMacOS) {
         "~/Library/Application Support/$MyPublisher/$MyModuleName.xml"
